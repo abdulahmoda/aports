@@ -1,0 +1,56 @@
+# Alpine Maintainer: Laurent Bercot <ska-devel@skarnet.org>
+# Maintainer: abdulahmoda <abahmoda@qnx.com>
+pkgname=s6
+pkgver=2.14.0.1
+pkgrel=0
+pkgdesc="skarnet.org's small & secure supervision software suite."
+url="https://skarnet.org/software/s6/"
+arch="all"
+license="ISC"
+makedepends="skalibs-dev
+	execline-dev"
+depends="s6-ipcserver
+	execline"
+options="!check"  # No test suite.
+subpackages="$pkgname-ipcserver $pkgname-static $pkgname-libs $pkgname-dev $pkgname-doc"
+source="https://github.com/abdulahmoda/s6/archive/refs/heads/qnx_v2.14.0.1.tar.gz s6-svscanboot"
+install="s6.pre-install s6.pre-upgrade"
+triggers="s6.trigger=/run/service"
+
+_ipcserver_binaries="usr/bin/s6-ipcserver usr/bin/s6-ipcserver-socketbinder usr/bin/s6-ipcserverd usr/bin/s6-applyuidgid"
+
+build_dir="$srcdir/s6-qnx_v2.14.0.1"
+
+build() {
+	cd $build_dir
+
+	./configure \
+		CFLAGS="$CFLAGS -Qunused-arguments -DSA_RESTART=0" \
+		--prefix=/usr \
+		--libexecdir="/usr/libexec/$pkgname" \
+		--enable-shared \
+		--disable-allstatic \
+		--with-pkgconfig \
+		--enable-pkgconfig
+	make
+}
+
+package() {
+
+	cd $build_dir
+	make DESTDIR="$pkgdir" install
+	install -D -m 0755 "$srcdir/s6-svscanboot" "$pkgdir/usr/libexec/s6/s6-svscanboot"
+	install -D -m 0644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+	mkdir -p "$pkgdir/usr/share/doc"
+	cp -a doc "$pkgdir/usr/share/doc/$pkgname"
+}
+
+ipcserver() {
+	depends=""
+	amove $_ipcserver_binaries
+}
+
+sha512sums="
+39b64a140bf9e5fbc8d27de16b26a9cfd0c84421bddb2a972c303396e656eec79aeb5d9da42125b133e79dfafe864a5e6c6b766a4b3be1059ba5131314d37aa2  qnx_v2.14.0.1.tar.gz
+206cdc275b81e60d8c8b7553ed1ce52ef0a868c853ccbb278e99459a8597fe650d1869973ca0a4526695664f0e853abfdae1a606276ab84db28d33d886f60751  s6-svscanboot
+"
