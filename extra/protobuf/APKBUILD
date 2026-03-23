@@ -37,6 +37,7 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/protocolbuffers/protobuf/arc
         fix-tests.patch
         soversion.patch
         fix-protoc-abs-path.patch
+        fix-protobuf-absl-log-header.patch
 	"
 
 build() {
