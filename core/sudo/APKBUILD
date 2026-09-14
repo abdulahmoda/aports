@@ -22,7 +22,7 @@ builddir="$srcdir/$pkgname-qnx-v$_realver"
 
 build() {
     cd $builddir
-    LDFLAGS="$LDFLAGS -lregex" \
+    LDFLAGS="$LDFLAGS -lregex -Wl,-z,stack-size=8388608" \
     CFLAGS="$CFLAGS -Wno-error=incompatible-function-pointer-types"
     ./configure \
         --build=$CBUILD \
